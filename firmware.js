@@ -22,6 +22,8 @@ var measurements = [
    value: 0},
   {id: 'button',
    value: 0},
+  {id: 'humidity correction',
+   value: 0},
 ];
 
 function getMeasurements() {
@@ -31,12 +33,12 @@ function getMeasurements() {
   bmp.getPressure(function(data) {
     measurements[0].value = data.pressure;
     measurements[1].value = data.temperature;
-    htu.getTemperature(function(temp) {
+  });
+  htu.getTemperature(function(temp) {
+    htu.getHumidity(function(hum) {
       measurements[2].value = temp;
-      htu.getHumidity(function(hum) {
-        measurements[3].value = hum;
-        getMeasurements();
-      });
+      measurements[3].value = hum;
+      measurements[7].value = htu.getCompensatedHumidity( hum, temp); 
     });
   });
 }
@@ -64,7 +66,7 @@ function onInit() {
   relaysInit();
   connectWifi('HOME', 'd0m1nat0r');
   serverInit();
-  getMeasurements();
+  setInterval(getMeasurements, 1000);
 }
 
 function serverInit() {
