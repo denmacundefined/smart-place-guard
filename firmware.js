@@ -38,7 +38,7 @@ function getMeasurements() {
     htu.getHumidity(function(hum) {
       measurements[2].value = temp;
       measurements[3].value = hum;
-      measurements[7].value = htu.getCompensatedHumidity( hum, temp); 
+      measurements[7].value = htu.getCompensatedHumidity(hum, temp);
     });
   });
 }
@@ -60,13 +60,14 @@ function connectWifi(ssid, password) {
 
 function onInit() {
   I2C1.setup({scl:22, sda:21});
-  display = require("SSD1306").connect(I2C1);
-  bmp = require("BMP085").connect(I2C1);
+  memory = new (require('FlashEEPROM'))();
+  display = require('SSD1306').connect(I2C1);
+  bmp = require('BMP085').connect(I2C1);
   htu = require('HTU21D').connect(I2C1);
+  connectWifi(E.toString(memory.read(0)), E.toString(memory.read(1)));
+  setInterval(getMeasurements, Number(E.toString(memory.read(2))));
   relaysInit();
-  connectWifi('HOME', 'd0m1nat0r');
   serverInit();
-  setInterval(getMeasurements, 1000);
 }
 
 function serverInit() {
