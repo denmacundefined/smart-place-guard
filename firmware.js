@@ -4,7 +4,8 @@ var pins = {
   co2: 35,
   gas: 34,
   button: 27,
-  relays: [4, 12, 13, 14, 2]
+  relays: [4, 12, 13, 14, 2],
+  i2c: {scl: 22, sda: 21}
 };
 
 var measurements = [
@@ -59,7 +60,7 @@ function connectWifi(ssid, password) {
 }
 
 function onInit() {
-  I2C1.setup({scl:22, sda:21});
+  I2C1.setup(pins.i2c);
   memory = new (require('FlashEEPROM'))();
   display = require('SSD1306').connect(I2C1);
   bmp = require('BMP085').connect(I2C1);
