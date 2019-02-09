@@ -8,38 +8,44 @@ var pins = {
   i2c: {scl: 22, sda: 21}
 };
 
-var measurements = [
-  {id: 'pressure',
+var values = [
+  {id: 'Pressure',
    value: 0},
-  {id: 'temperature',
+  {id: 'Temperature 1',
    value: 0},
-  {id: 'temperature htu',
+  {id: 'Temperature 2',
    value: 0},
-  {id: 'humidity',
+  {id: 'Humidity 1',
    value: 0},
-  {id: 'co2',
+  {id: 'CO2',
    value: 0},
-  {id: 'gas',
+  {id: 'Gas',
    value: 0},
-  {id: 'button',
+  {id: 'Humidity 2',
    value: 0},
-  {id: 'humidity correction',
+  {id: 'Button',
    value: 0},
+  {id: 'Display index',
+   value: 0}
 ];
 
-function getMeasurements() {
-  measurements[4].value = analogRead(pins.co2);
-  measurements[5].value = analogRead(pins.gas);
-  measurements[6].value = digitalRead(pins.button);
+var displayViewsCount = 7;
+
+function getValues() {
+  values[4].value = analogRead(pins.co2);
+  values[5].value = analogRead(pins.gas);
+  values[7].value = digitalRead(pins.button);
+  values[8].value = (values[7].value === 0) ? values[8].value + 1 : values[8].value;
+  values[8].value = (values[8].value > displayViewsCount) ? 0 : values[8].value;
   bmp.getPressure(function(data) {
-    measurements[0].value = data.pressure;
-    measurements[1].value = data.temperature;
+    values[0].value = data.pressure;
+    values[1].value = data.temperature;
   });
   htu.getTemperature(function(temp) {
     htu.getHumidity(function(hum) {
-      measurements[2].value = temp;
-      measurements[3].value = hum;
-      measurements[7].value = htu.getCompensatedHumidity(hum, temp);
+      values[2].value = temp;
+      values[3].value = hum;
+      values[6].value = htu.getCompensatedHumidity(hum, temp);
     });
   });
 }
@@ -50,13 +56,63 @@ function relaysInit() {
   }
 }
 
-function connectWifi(ssid, password) {
+function setRgbColor(value) {
+  analogWrite(pins.rgb[0], value);
+  analogWrite(pins.rgb[2], 1 - value);
+  analogWrite(pins.rgb[1], 0.5 - value);
+}
+
+function wifiConnect(ssid, password) {
    wifi = require('Wifi');
-   wifi.connect(ssid, {password: password}, function() {
-    display.setFontVector(12);
-    display.drawString((`${wifi.getIP().ip}`), 0, 0);
-    display.flip();
-  });
+   wifi.connect(ssid, {password: password});
+}
+
+function setDisplayView() {
+  display.clear();
+  display.setFontVector(13);
+  switch (values[8].value) {
+    case 0 :
+      display.drawString(`${wifi.getIP().mac}`, 0, 1);
+      display.drawString(`${wifi.getIP().ip}`, 0, 22);
+      display.drawString(`${wifi.getIP().gw}`, 0, 46);
+      break;
+    case 1 :
+      display.drawString(`${values[0].id} :`, 0, 0);
+      display.setFontVector(18);
+      display.drawString(`${values[0].value}`, 0, 30);
+      break;
+    case 2 :
+      display.drawString(`${values[1].id} :`, 0, 0);
+      display.setFontVector(18);
+      display.drawString(`${values[1].value}`, 0, 30);
+      break;
+     case 3 :
+      display.drawString(`${values[2].id} :`, 0, 0);
+      display.setFontVector(18);
+      display.drawString(`${values[2].value}`, 0, 30);
+      break;
+     case 4 :
+      display.drawString(`${values[3].id} :`, 0, 0);
+      display.setFontVector(18);
+      display.drawString(`${values[3].value}`, 0, 30);
+      break;
+     case 5 :
+      display.drawString(`${values[4].id} :`, 0, 0);
+      display.setFontVector(18);
+      display.drawString(`${values[4].value}`, 0, 30);
+      break;
+     case 6 :
+      display.drawString(`${values[5].id} :`, 0, 0);
+      display.setFontVector(18);
+      display.drawString(`${values[5].value}`, 0, 30);
+      break;
+     case 7 :
+      display.drawString(`${values[6].id} :`, 0, 0);
+      display.setFontVector(18);
+      display.drawString(`${values[6].value}`, 0, 30);
+      break;
+  }
+  display.flip();
 }
 
 function onInit() {
@@ -65,9 +121,12 @@ function onInit() {
   display = require('SSD1306').connect(I2C1);
   bmp = require('BMP085').connect(I2C1);
   htu = require('HTU21D').connect(I2C1);
-  connectWifi(E.toString(memory.read(0)), E.toString(memory.read(1)));
-  setInterval(getMeasurements, Number(E.toString(memory.read(2))));
   relaysInit();
+  wifiConnect(E.toString(memory.read(0)), E.toString(memory.read(1)));
+  setInterval(function() {
+    getValues();
+    setDisplayView();
+  }, Number(E.toString(memory.read(2))));
   serverInit();
 }
 
@@ -75,16 +134,9 @@ function serverInit() {
   http = require('http');
   http.createServer(function(req, res) {
     res.writeHead(200);
-    for (var i = 0; i < measurements.length; i++) {
-      res.write(`\n ${measurements[i].id} : ${measurements[i].value}`);
+    for (var i = 0; i < values.length; i++) {
+      res.write(`\n ${values[i].id} : ${values[i].value}`);
     }
     res.end();
-    analogWrite(pins.buzzer, 1);
-    setTimeout(function() {
-      analogWrite(pins.buzzer, 0);
-    }, 333);
-    display.setFontVector(12);
-    display.drawString('request done', 0, 22);
-    display.flip();
   }).listen(80);
 }
