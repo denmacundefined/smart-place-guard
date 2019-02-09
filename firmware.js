@@ -40,12 +40,14 @@ function getValues() {
   bmp.getPressure(function(data) {
     values[0].value = data.pressure;
     values[1].value = data.temperature;
-  });
-  htu.getTemperature(function(temp) {
-    htu.getHumidity(function(hum) {
-      values[2].value = temp;
-      values[3].value = hum;
-      values[6].value = htu.getCompensatedHumidity(hum, temp);
+    htu.getTemperature(function(temp) {
+      htu.getHumidity(function(hum) {
+        values[2].value = temp;
+        values[3].value = hum;
+        values[6].value = htu.getCompensatedHumidity(hum, temp);
+        setDisplayView();
+        setTimeout(getValues, Number(E.toString(memory.read(2))));
+      });
     });
   });
 }
@@ -121,12 +123,9 @@ function onInit() {
   display = require('SSD1306').connect(I2C1);
   bmp = require('BMP085').connect(I2C1);
   htu = require('HTU21D').connect(I2C1);
-  relaysInit();
   wifiConnect(E.toString(memory.read(0)), E.toString(memory.read(1)));
-  setInterval(function() {
-    getValues();
-    setDisplayView();
-  }, Number(E.toString(memory.read(2))));
+  relaysInit();
+  getValues();
   serverInit();
 }
 
