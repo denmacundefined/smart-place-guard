@@ -3,7 +3,6 @@ var pins = {
   buzzer: 32,
   co2: 35,
   gas: 34,
-  button: 27,
   relays: [4, 12, 13, 14, 2],
   i2c: {scl: 22, sda: 21}
 };
@@ -23,20 +22,13 @@ var values = [
    value: 0},
   {id: 'Humidity 2',
    value: 0},
-  {id: 'Button',
-   value: 0},
   {id: 'Display index',
    value: 0}
 ];
 
-var displayViewsCount = 7;
-
 function getValues() {
-  values[4].value = analogRead(pins.co2);
+  values[4].value = Math.round(analogRead(pins.co2) * 100) / 100;
   values[5].value = analogRead(pins.gas);
-  values[7].value = digitalRead(pins.button);
-  values[8].value = (values[7].value === 0) ? values[8].value + 1 : values[8].value;
-  values[8].value = (values[8].value > displayViewsCount) ? 0 : values[8].value;
   bmp.getPressure(function(data) {
     values[0].value = data.pressure;
     values[1].value = data.temperature;
@@ -45,17 +37,10 @@ function getValues() {
         values[2].value = temp;
         values[3].value = hum;
         values[6].value = htu.getCompensatedHumidity(hum, temp);
-        setDisplayView();
         setTimeout(getValues, Number(E.toString(memory.read(2))));
       });
     });
   });
-}
-
-function relaysInit() {
-  for (var i = 1; i < pins.relays.length; i++) {
-    pinMode(pins.relays[i], 'output');
-  }
 }
 
 function setRgbColor(value) {
@@ -70,9 +55,16 @@ function wifiConnect(ssid, password) {
 }
 
 function setDisplayView() {
+  var colorStep = Number(E.toString(memory.read(3)));
+  if (values[7].value === 0) {
+    setRgbColor(colorStep / 2);
+  } else {
+    setRgbColor(values[7].value * colorStep);
+  }
+  values[7].value = (values[7].value + 1 > displayViewsCount) ? 0 : values[7].value + 1;
   display.clear();
   display.setFontVector(13);
-  switch (values[8].value) {
+  switch (values[7].value) {
     case 0 :
       display.drawString(`${wifi.getIP().mac}`, 0, 1);
       display.drawString(`${wifi.getIP().ip}`, 0, 22);
@@ -118,13 +110,17 @@ function setDisplayView() {
 }
 
 function onInit() {
-  I2C1.setup(pins.i2c);
+  displayViewsCount = 7;
   memory = new (require('FlashEEPROM'))();
+  I2C1.setup(pins.i2c);
   display = require('SSD1306').connect(I2C1);
   bmp = require('BMP085').connect(I2C1);
   htu = require('HTU21D').connect(I2C1);
+  for (var i = 0; i < pins.relays.length; i++) {
+     digitalWrite(pins.relays[i], 0);
+  }
   wifiConnect(E.toString(memory.read(0)), E.toString(memory.read(1)));
-  relaysInit();
+  setInterval(setDisplayView, Number(E.toString(memory.read(4))));
   getValues();
   serverInit();
 }
