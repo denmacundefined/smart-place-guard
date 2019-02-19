@@ -4,7 +4,8 @@ var pins = {
   co2: 35,
   gas: 34,
   relays: [4, 12, 13, 14, 2],
-  i2c: {scl: 22, sda: 21}
+  i2c: {scl: 22, sda: 21},
+  button: 15
 };
 
 var values = [
@@ -120,7 +121,8 @@ function onInit() {
      digitalWrite(pins.relays[i], 0);
   }
   wifiConnect(E.toString(memory.read(0)), E.toString(memory.read(1)));
-  setInterval(setDisplayView, Number(E.toString(memory.read(4))));
+  pinMode(pins.button, 'analog');
+  setWatch(setDisplayView, pins.button, {repeat: true, edge: 'rising', debounce: 60});
   getValues();
   serverInit();
 }
