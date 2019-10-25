@@ -21,4 +21,7 @@ For upload firmware to arduino nano you need get Arduino IDE, configure connecti
 [![smart-place-guard](http://img.youtube.com/vi/6RgXKTK5o1Y/0.jpg)](http://www.youtube.com/watch?v=6RgXKTK5o1Y)
 
 ### Photos (creating time and final version)
-![smart-place-guard](/smart-watcher.png)
+![smart-place-guard](/photos/20190131_130801.jpg)
+![smart-place-guard](/photos/20190201_181409.jpg)
+![smart-place-guard](/photos/20190208_153639.jpg)
+![smart-place-guard](/photos/20190208_153646.jpg)
