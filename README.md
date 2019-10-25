@@ -7,13 +7,8 @@ Here is schema for creating device based on fritzing:
 Every element has self identification and you can very easy find where you can get this specific element, also you can see [schema in .fzz](/fritzing/main.fzz)
 
 ## Software
-For upload firmware to arduino nano you need get Arduino IDE, configure connection with arduino nano board and upload file [smart_place_watcher.ino](smart_place_watcher/smart_place_watcher.ino) to device.
-**Also for uploading you need next packages:**
-* Adafruit_GFX.h
-* Adafruit_PCD8544.h
-* DHT.h
-* Adafruit_BMP085.h
-* RTClib.h
+For upload firmware to LuaNode32 you need upload file [smart_place_guard.ino](/firmware.js) to device.
+
 
 ## Demo
 
