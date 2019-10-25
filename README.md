@@ -15,8 +15,10 @@ For upload firmware to arduino nano you need get Arduino IDE, configure connecti
 * Adafruit_BMP085.h
 * RTClib.h
 
-### Device in work
-[![smart-watcher](http://img.youtube.com/vi/6RgXKTK5o1Y/0.jpg)](http://www.youtube.com/watch?v=6RgXKTK5o1Y)
+## Demo
 
-### Photo (creating time and final version)
-![smart-watcher](/smart-watcher.png)
+### Video (device in work)
+[![smart-place-guard](http://img.youtube.com/vi/6RgXKTK5o1Y/0.jpg)](http://www.youtube.com/watch?v=6RgXKTK5o1Y)
+
+### Photos (creating time and final version)
+![smart-place-guard](/smart-watcher.png)
