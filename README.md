@@ -7,7 +7,7 @@ Here is schema for creating device based on fritzing:
 Every element has self identification and you can very easy find where you can get this specific element, also you can see [schema in .fzz](/fritzing/main.fzz)
 
 ## Software
-For upload firmware to LuaNode32 you need upload file [smart_place_guard.ino](/firmware.js) to device.
+For upload firmware to LuaNode32 you need upload file [smart_place_guard.ino](smart-place-guard/firmware.js) to device.
 
 
 ## Demo
