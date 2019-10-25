@@ -19,4 +19,3 @@ For upload firmware to LuaNode32 you need upload file [smart_place_guard.ino](/f
 ![smart-place-guard](/photos/20190131_130801.jpg)
 ![smart-place-guard](/photos/20190201_181409.jpg)
 ![smart-place-guard](/photos/20190208_153639.jpg)
-![smart-place-guard](/photos/20190208_153646.jpg)
