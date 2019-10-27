@@ -1,6 +1,4 @@
 # smart-place-guard
-Device based on esp32 together with espruino for sending air measurements to smart-place platform
-
 ## Hardware
 Here is schema for creating device based on fritzing:
 ![smart-place-guard](/fritzing/fritzing-schema.png)
