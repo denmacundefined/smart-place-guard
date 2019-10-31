@@ -11,8 +11,8 @@ For upload firmware to LuaNode32 you need upload file [smart_place_guard.ino](/f
 ## Demo
 
 ### Video
-[![smart-place-guard](http://img.youtube.com/vi/7ZeH6FLk760/0.jpg)](http://www.youtube.com/watch?v=7ZeH6FLk760)
 [![smart-place-guard](http://img.youtube.com/vi/6RgXKTK5o1Y/0.jpg)](http://www.youtube.com/watch?v=6RgXKTK5o1Y)
+[![smart-place-guard](http://img.youtube.com/vi/7ZeH6FLk760/0.jpg)](http://www.youtube.com/watch?v=7ZeH6FLk760)
 
 ### Photos
 ![smart-place-guard](/photos/20190131_130801.jpg)
