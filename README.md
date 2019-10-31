@@ -1,4 +1,3 @@
-# smart-place-guard
 ## Hardware
 Here is schema for creating device based on fritzing:
 ![smart-place-guard](/fritzing/fritzing-schema.png)
