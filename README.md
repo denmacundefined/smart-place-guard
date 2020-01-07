@@ -7,8 +7,11 @@ Every element has self identification and you can very easy find where you can g
 For upload firmware to LuaNode32 you need upload file [smart_place_guard.ino](/firmware.js) to device.
 
 # Demo 
+## Videos
 [![smart-place-guard](http://img.youtube.com/vi/6RgXKTK5o1Y/0.jpg)](http://www.youtube.com/watch?v=6RgXKTK5o1Y)
 [![smart-place-guard](http://img.youtube.com/vi/7ZeH6FLk760/0.jpg)](http://www.youtube.com/watch?v=7ZeH6FLk760)
+
+## Photos
 ![smart-place-guard](/photos/20190131_130801.jpg)
 ![smart-place-guard](/photos/20190201_181409.jpg)
 ![smart-place-guard](/photos/20190208_153639.jpg)
