@@ -49,6 +49,7 @@ Once your Smart Place Guard device is booted and connected to your Wi-Fi network
 Open your web browser and navigate to `http://<ESP32_IP_ADDRESS>/`, or run the following cURL command in your Windows terminal:
 ```bash
 curl http://<ESP32_IP_ADDRESS>/
+```
 **JSON Response Structure:**
 ```json
 {
@@ -66,6 +67,7 @@ curl http://<ESP32_IP_ADDRESS>/
   "Relay 5": 0,
   "Display index": 5
 }
+```
 * **Pressure:** Atmospheric pressure in Pascals (Pa) from BMP085.
 * **Temperature 1 / 2:** Ambient temperature in Celsius (°C) from BMP085 and HTU21D.
 * **Humidity 1 / Humidity Comp:** Raw and temperature-compensated relative humidity (%) from HTU21D.
@@ -78,6 +80,7 @@ curl http://<ESP32_IP_ADDRESS>/
 To switch any of the 5 relays remotely, send an HTTP POST request with a JSON array of 5 binary values (0 or 1) corresponding to Relay 1 through Relay 5:
 ```bash
 curl -X POST http://<ESP32_IP_ADDRESS>/ -H "Content-Type: application/json" -d "[1,0,0,1,0]"
+```
 
 ### Smart Place Platform & SMS Control
 You can connect this device directly to the Smart Place platform to forward telemetry data and automate relay triggers. Once integrated, you can monitor sensor thresholds remotely and toggle relays via SMS commands through the platform's gateway.
