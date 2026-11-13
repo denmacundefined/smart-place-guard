@@ -28,18 +28,21 @@ To set up your development and flashing environment for the Smart Place Guard, f
 3. **Flash Espruino Firmware:** Connect your assembled Smart Place device to your computer via USB. Navigate to the official [Espruino ESP32 Guide](https://www.espruino.com/ESP32) to flash the firmware. You can use their convenient online flashing tool, or alternatively use the local Python scripts and pre-packaged Espruino v2.29 binary for ESP32 located in the `install/windows/` folder.
 4. **Configure IDE Settings:** Launch the Espruino IDE, open the configuration/settings panel, and make sure the baud rate is configured to **ESP32 defaults to 115200 baud** for stable serial communication.
 
-### Firmware uploading
-For upload firmware to LuaNode32 you need upload the main file [code.js](/code.js) along with required modules to the device's internal storage. Follow these steps using the Espruino IDE:
+### Firmware Uploading & Storage
+
+To deploy the firmware and all necessary modules to your LuaNode32 device, follow these sequential steps using the Espruino IDE:
+
 1. **Establish Connection:** Once the base Espruino firmware is running, click the **Connect** button in the Espruino IDE to link your computer with the device over serial.
-2. **Open Storage Manager:** Navigate to the storage management section in the IDE (Storage tab) where files saved on the ESP32 flash memory are handled.
-3. **Select Module Files:** Click the open button in the IDE to load module files (such as `BMP085`, `HTU21D`, `SSD1306`) from the corresponding paths inside the local `storage/` directory.
-4. **Flash to Device:** Click the **Flash** button to compile and upload each individual module file directly into the ESP32 storage.
-5. **Upload Dependencies & Main Code:** Repeat the process sequentially for all required dependencies and the core script file ([code.js](/code.js)).
-6. **Configure Settings (`config` file):** Finally, create and upload the `config` file containing your system parameters. The file must store the following configuration values line-by-line:
+2. **Access Storage Manager:** Navigate to the storage management section in the IDE where files saved on the ESP32 flash memory are handled.
+3. **Upload Driver Modules:** Open and upload each individual hardware module file (`BMP085`, `HTU21D`, `SSD1306`) from the corresponding paths inside the local `storage/` directory to the device's storage.
+4. **Create and Upload Configuration:** Create the `config` file containing your system parameters in the required line-by-line format:
    - **Line 1:** Your Wi-Fi Network `SSID`
    - **Line 2:** Your Wi-Fi Network `Password`
    - **Line 3:** Sensor polling `Interval` in milliseconds (e.g., `5000`)
    - **Line 4:** RGB backlight transition `ColorStep` value (e.g., `0.1`)
+5. **Load Main Script (`code.js`):** Open the core application file [`code.js`](/code.js) in the Espruino IDE code editor.
+6. **Send to RAM & Execute:** Click the **Send to Espruino** (Send to RAM) button to transfer the script and initialize runtime functions (`onInit()`). Verify in the terminal console that sensors, display, Wi-Fi, and the HTTP REST server start successfully.
+7. **Persist State (`save()`):** In the terminal console, type `save()` and press Enter. This writes the active environment and initialization hooks to non-volatile flash memory so the device runs automatically on boot without needing a computer connection.
 
 ## Demo
 
