@@ -85,6 +85,17 @@ curl -X POST http://<ESP32_IP_ADDRESS>/ -H "Content-Type: application/json" -d "
 ### Smart Place Platform & SMS Control
 You can connect this device directly to the Smart Place platform to forward telemetry data and automate relay triggers. Once integrated, you can monitor sensor thresholds remotely and toggle relays via SMS commands through the platform's gateway.
 
+## Acoustic Alarm & Critical Alert System
+The Smart Place Guard is equipped with an onboard buzzer connected to **GPIO 32** (`pins.buzzer`) to provide immediate local audio feedback when environmental parameters drift beyond safe operational thresholds.
+
+* **Trigger Conditions:** The firmware continuously evaluates all active sensor inputs against predefined safety limits:
+  * **Atmospheric Pressure:** Monitors for extreme pressure drops or spikes (`< 90,000 Pa` or `> 105,000 Pa`).
+  * **Temperature (Temp 1 & Temp 2):** Triggers if ambient temperature drops below `10.0 °C` or exceeds `45.0 °C`.
+  * **Humidity (Raw & Compensated):** Alerts if relative humidity falls outside the `10% – 90%` safe operating range.
+  * **Carbon Dioxide ($CO_2$):** Activates when levels exceed `1200 ppm` (normal baseline is ~672 ppm).
+  * **Combustible Gas (MQ-9):** Triggers if gas readings exceed `50` units (normal baseline is ~5).
+* **Alarm Behavior:** When any sensor breaches its threshold, the system triggers a distinct pulsing audio pattern via `digitalPulse()` and logs the alert to the serial console, automatically returning to silence once environmental conditions normalize.
+
 ## Demo
 
 ### Final wired version
