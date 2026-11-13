@@ -179,8 +179,6 @@ function setDisplayView() {
 
 function onInit() {
   displayViewsCount = 12;
-  
-  // Ініціалізація піна піщалки (buzzer: 32)
   pinMode(pins.buzzer, 'output');
   digitalWrite(pins.buzzer, 0);
 
