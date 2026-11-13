@@ -29,7 +29,17 @@ To set up your development and flashing environment for the Smart Place Guard, f
 4. **Configure IDE Settings:** Launch the Espruino IDE, open the configuration/settings panel, and make sure the baud rate is configured to **ESP32 defaults to 115200 baud** for stable serial communication.
 
 ### Firmware uploading
-For upload firmware to LuaNode32 you need upload file [smart_place_guard](/code.js) to device.
+For upload firmware to LuaNode32 you need upload the main file [code.js](/code.js) along with required modules to the device's internal storage. Follow these steps using the Espruino IDE:
+1. **Establish Connection:** Once the base Espruino firmware is running, click the **Connect** button in the Espruino IDE to link your computer with the device over serial.
+2. **Open Storage Manager:** Navigate to the storage management section in the IDE (Storage tab) where files saved on the ESP32 flash memory are handled.
+3. **Select Module Files:** Click the open button in the IDE to load module files (such as `BMP085`, `HTU21D`, `SSD1306`) from the corresponding paths inside the local `storage/` directory.
+4. **Flash to Device:** Click the **Flash** button to compile and upload each individual module file directly into the ESP32 storage.
+5. **Upload Dependencies & Main Code:** Repeat the process sequentially for all required dependencies and the core script file ([code.js](/code.js)).
+6. **Configure Settings (`config` file):** Finally, create and upload the `config` file containing your system parameters. The file must store the following configuration values line-by-line:
+   - **Line 1:** Your Wi-Fi Network `SSID`
+   - **Line 2:** Your Wi-Fi Network `Password`
+   - **Line 3:** Sensor polling `Interval` in milliseconds (e.g., `5000`)
+   - **Line 4:** RGB backlight transition `ColorStep` value (e.g., `0.1`)
 
 ## Demo
 
