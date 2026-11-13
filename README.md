@@ -29,9 +29,7 @@ To set up your development and flashing environment for the Smart Place Guard, f
 4. **Configure IDE Settings:** Launch the Espruino IDE, open the configuration/settings panel, and make sure the baud rate is configured to **ESP32 defaults to 115200 baud** for stable serial communication.
 
 ### Firmware Uploading & Storage
-
 To deploy the firmware and all necessary modules to your LuaNode32 device, follow these sequential steps using the Espruino IDE:
-
 1. **Establish Connection:** Once the base Espruino firmware is running, click the **Connect** button in the Espruino IDE to link your computer with the device over serial.
 2. **Access Storage Manager:** Navigate to the storage management section in the IDE where files saved on the ESP32 flash memory are handled.
 3. **Upload Driver Modules:** Open and upload each individual hardware module file (`BMP085`, `HTU21D`, `SSD1306`) from the corresponding paths inside the local `storage/` directory to the device's storage.
@@ -43,6 +41,46 @@ To deploy the firmware and all necessary modules to your LuaNode32 device, follo
 5. **Load Main Script (`code.js`):** Open the core application file [`code.js`](/code.js) in the Espruino IDE code editor.
 6. **Send to RAM & Execute:** Click the **Send to Espruino** (Send to RAM) button to transfer the script and initialize runtime functions (`onInit()`). Verify in the terminal console that sensors, display, Wi-Fi, and the HTTP REST server start successfully.
 7. **Persist State (`save()`):** In the terminal console, type `save()` and press Enter. This writes the active environment and initialization hooks to non-volatile flash memory so the device runs automatically on boot without needing a computer connection.
+
+## How to Use
+Once your Smart Place Guard device is booted and connected to your Wi-Fi network, you can access live telemetry and control the relays via a web browser, standard command-line tools like **cURL** (built into Windows 10/11), or through the **Smart Place platform**.
+
+### Reading Telemetry Data (GET)
+Open your web browser and navigate to `http://<ESP32_IP_ADDRESS>/`, or run the following cURL command in your Windows terminal:
+```bash
+curl http://<ESP32_IP_ADDRESS>/
+**JSON Response Structure:**
+```json
+{
+  "Pressure": 97620,
+  "Temperature 1": 26.5,
+  "Temperature 2": 26.5,
+  "Humidity 1": 40.7,
+  "CO2": 800,
+  "Gas (MQ9)": 4,
+  "Humidity Comp": 41,
+  "Relay 1": 0,
+  "Relay 2": 0,
+  "Relay 3": 0,
+  "Relay 4": 0,
+  "Relay 5": 0,
+  "Display index": 5
+}
+* **Pressure:** Atmospheric pressure in Pascals (Pa) from BMP085.
+* **Temperature 1 / 2:** Ambient temperature in Celsius (°C) from BMP085 and HTU21D.
+* **Humidity 1 / Humidity Comp:** Raw and temperature-compensated relative humidity (%) from HTU21D.
+* **CO2:** Calibrated carbon dioxide concentration in ppm from MG-811.
+* **Gas (MQ9):** Combustible gas sensor reading from MQ-9.
+* **Relay 1–5:** Current state of each relay (`0` = OFF, `1` = ON).
+* **Display index:** Active screen index on the OLED display.
+
+### Controlling Relays via REST (POST)
+To switch any of the 5 relays remotely, send an HTTP POST request with a JSON array of 5 binary values (0 or 1) corresponding to Relay 1 through Relay 5:
+```bash
+curl -X POST http://<ESP32_IP_ADDRESS>/ -H "Content-Type: application/json" -d "[1,0,0,1,0]"
+
+### Smart Place Platform & SMS Control
+You can connect this device directly to the Smart Place platform to forward telemetry data and automate relay triggers. Once integrated, you can monitor sensor thresholds remotely and toggle relays via SMS commands through the platform's gateway.
 
 ## Demo
 
