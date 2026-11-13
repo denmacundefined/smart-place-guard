@@ -87,6 +87,9 @@ You can connect this device directly to the Smart Place platform to forward tele
 
 ## Demo
 
+### Final wired version
+[![Smart Place Guard Reel](images/fb-thumb.png)](https://www.facebook.com/reel/913510201027941/)
+
 ### Prototype videos from first stage
 [![smart-place-guard](http://img.youtube.com/vi/6RgXKTK5o1Y/0.jpg)](http://www.youtube.com/watch?v=6RgXKTK5o1Y)
 [![smart-place-guard](http://img.youtube.com/vi/7ZeH6FLk760/0.jpg)](http://www.youtube.com/watch?v=7ZeH6FLk760)
