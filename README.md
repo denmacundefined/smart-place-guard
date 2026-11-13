@@ -88,7 +88,7 @@ You can connect this device directly to the Smart Place platform to forward tele
 ## Demo
 
 ### Final wired version
-[![Smart Place Guard Reel](/fritzing/fritzing-schema.png)](https://www.facebook.com/reel/913510201027941/)
+[![Smart Place Guard Reel](/photos/20190201_181409.jpg)](https://www.facebook.com/reel/913510201027941/)
 
 ### Prototype videos from first stage
 [![smart-place-guard](http://img.youtube.com/vi/6RgXKTK5o1Y/0.jpg)](http://www.youtube.com/watch?v=6RgXKTK5o1Y)
