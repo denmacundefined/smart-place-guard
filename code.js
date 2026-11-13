@@ -35,6 +35,18 @@ var memory = {
 
 var displayViewsCount, display, bmp, htu;
 var wifi = require('Wifi');
+var alarmActive = false;
+
+const THRESHOLDS = {
+  PRESSURE_MIN: 90000,
+  PRESSURE_MAX: 105000,
+  TEMP_MIN: 10.0,
+  TEMP_MAX: 50.0,
+  HUMIDITY_MIN: 10.0,
+  HUMIDITY_MAX: 90.0,
+  CO2_MAX: 2000,
+  GAS_MQ9_MAX: 50
+};
 
 function readFilteredAnalog(pin) {
   var sum = 0;
@@ -43,6 +55,44 @@ function readFilteredAnalog(pin) {
     sum += analogRead(pin);
   }
   return sum / samples;
+}
+
+function checkAlerts() {
+  let isCritical = false;
+  let p = values[0].value;
+  let t1 = values[1].value;
+  let t2 = values[2].value;
+  let h1 = values[3].value;
+  let co2 = values[4].value;
+  let gas = values[5].value;
+  let hComp = values[6].value;
+  if (p < THRESHOLDS.PRESSURE_MIN || p > THRESHOLDS.PRESSURE_MAX) {
+    isCritical = true;
+  }
+  if (t1 < THRESHOLDS.TEMP_MIN || t1 > THRESHOLDS.TEMP_MAX ||
+      t2 < THRESHOLDS.TEMP_MIN || t2 > THRESHOLDS.TEMP_MAX) {
+    isCritical = true;
+  }
+  if (h1 < THRESHOLDS.HUMIDITY_MIN || h1 > THRESHOLDS.HUMIDITY_MAX ||
+      hComp < THRESHOLDS.HUMIDITY_MIN || hComp > THRESHOLDS.HUMIDITY_MAX) {
+    isCritical = true;
+  }
+  if (co2 > THRESHOLDS.CO2_MAX) {
+    isCritical = true;
+  }
+  if (gas > THRESHOLDS.GAS_MQ9_MAX) {
+    isCritical = true;
+  }
+  if (isCritical) {
+    if (!alarmActive) {
+      alarmActive = true;
+      print("ALARM TRIGGERED! Critical condition on sensors.");
+      digitalPulse(pins.buzzer, 1, [200, 200, 200, 200]); 
+    }
+  } else {
+    alarmActive = false;
+    digitalWrite(pins.buzzer, 0);
+  }
 }
 
 function getValues() {
@@ -67,6 +117,7 @@ function getValues() {
         values[2].value = Math.round(temp * 10) / 10;
         values[3].value = Math.round(hum * 10) / 10;
         values[6].value = Math.round(htu.getCompensatedHumidity(hum, temp) * 10) / 10;
+        checkAlerts();
         setTimeout(getValues, Number(E.toString(memory.read(2))) || 5000);
       });
     });
@@ -128,6 +179,11 @@ function setDisplayView() {
 
 function onInit() {
   displayViewsCount = 12;
+  
+  // Ініціалізація піна піщалки (buzzer: 32)
+  pinMode(pins.buzzer, 'output');
+  digitalWrite(pins.buzzer, 0);
+
   for (var i = 0; i < pins.relays.length; i++) {
     pinMode(pins.relays[i], 'output');
     digitalWrite(pins.relays[i], 0);
