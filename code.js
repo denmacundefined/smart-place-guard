@@ -131,15 +131,27 @@ function setRgbColor(value) {
   analogWrite(pins.rgb[2], Math.abs(0.5 - v) * 2);
 }
 
-function wifiConnect(ssid, password) {
-  wifi.disconnect();
-  print("Connecting to Wi-Fi: " + ssid);
+function wifiEnsureConnected() {
+  var ssid = E.toString(memory.read(0)).trim();
+  var password = E.toString(memory.read(1)).trim();
+  if (!ssid) {
+    print("Wi-Fi SSID is empty in config!");
+    return;
+  }
+  var ipInfo = wifi.getIP();
+  if (ipInfo && ipInfo.ip !== "0.0.0.0") {
+    setTimeout(wifiEnsureConnected, 15000);
+    return;
+  }
+  print("Connecting to Wi-Fi: " + ssid + "...");
   wifi.connect(ssid, {password: password}, function(err) {
     if (err) {
-      print("Wi-Fi error: " + JSON.stringify(err));
+      print("Wi-Fi connection error: " + JSON.stringify(err) + ". Retrying in 10s...");
+      setTimeout(wifiEnsureConnected, 10000);
     } else {
-      var ipInfo = wifi.getIP();
-      print("Wi-Fi connected successfully! IP: " + (ipInfo ? ipInfo.ip : "unknown"));
+      var info = wifi.getIP();
+      print("Wi-Fi connected successfully! IP: " + (info ? info.ip : "unknown"));
+      setTimeout(wifiEnsureConnected, 15000);
     }
   });
 }
@@ -181,7 +193,6 @@ function onInit() {
   displayViewsCount = 12;
   pinMode(pins.buzzer, 'output');
   digitalWrite(pins.buzzer, 0);
-
   for (var i = 0; i < pins.relays.length; i++) {
     pinMode(pins.relays[i], 'output');
     digitalWrite(pins.relays[i], 0);
@@ -192,9 +203,7 @@ function onInit() {
   bmp = require('BMP085').connect(I2C1);
   htu = require('HTU21D').connect(I2C1);
   setTimeout(function() {
-    var ssid = E.toString(memory.read(0)).trim();
-    var password = E.toString(memory.read(1)).trim();
-    wifiConnect(ssid, password);
+    wifiEnsureConnected();
   }, 2000);
   pinMode(pins.button, 'input_pullup');
   setWatch(setDisplayView, pins.button, {repeat: true, edge: 'rising', debounce: 60});
@@ -211,6 +220,7 @@ function serverInit() {
       for (var i = 0; i < values.length; i++) {
         data[values[i].id] = values[i].value;
       }
+      data["alert"] = alarmActive;
       res.end(JSON.stringify(data));
     } else if (req.method === 'POST') {
       var body = '';
