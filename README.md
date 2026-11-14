@@ -4,8 +4,10 @@ Smart Place Guard is an all-in-one smart environment controller. It monitors you
 ### What it does for you:
 * **Real-time Air Quality & Climate Monitoring:** Tracks $CO_2$ levels, flammable gas leaks, precise atmospheric pressure, temperature, and humidity.
 * **Smart Local Control:** Automatically triggers actions or lets you switch 5 different relays on/off instantly via a built-in web server or a local physical button.
-* **Remote Management (REST API):** Connects to your Wi-Fi network so you can pull live sensor stats as JSON data or change relay states straight from your phone, computer, or home automation system.
-* **Rock-Solid Stability:** Built with advanced error-protection (such as an automatic I2C recovery watchdog and filtered analog inputs) to keep the system running 24/7 without crashing or freezing.
+* **Remote Management (REST API & Auto-Reconnect):** Connects to your Wi-Fi network with an automatic retry loop, allowing you to pull live sensor stats and alert statuses as JSON data or change relay states straight from your phone, computer, or home automation system.
+* **Rock-Solid Stability:** Built with advanced error-protection (such as an automatic I2C recovery watchdog, filtered analog inputs, and continuous Wi-Fi link monitoring) to keep the system running 24/7 without crashing or freezing.
+
+---
 
 ## Hardware
 Here is schema for creating device based on fritzing:
@@ -18,6 +20,8 @@ Every element has self identification and you can very easy find where you can g
 * **Relay Isolation & Back-EMF Protection:** The 5-channel relay board (KY-019 style) handles heavy inductive loads. Ensure the relay board's optocoupler and VCC/GND lines are properly separated or robustly decoupled if sharing the power rail, preventing inductive kickback from resetting the ESP32 microcontroller during relay toggling.
 * **I2C Bus Layout (BMP085 & HTU21D):** Both sensors share the I2C bus (SDA: GPIO 21, SCL: GPIO 22). Keep the total trace/wire length as short as possible (under 20-30 cm) and ensure proper pull-up resistors (typically 4.7kΩ) are present on both SDA and SCL lines to guarantee clean signal rise times and prevent bus lockups.
 * **Physical Mounting & Thermal Management:** The MG-811 $CO_2$ sensor relies on an internal heating element to maintain its operating temperature. Ensure adequate physical clearance around the sensor module in your enclosure so heat dissipates safely without affecting nearby sensitive components like the HTU21D temperature/humidity sensor.
+
+---
 
 ## Software
 
@@ -42,6 +46,8 @@ To deploy the firmware and all necessary modules to your LuaNode32 device, follo
 6. **Send to RAM & Execute:** Click the **Send to Espruino** (Send to RAM) button to transfer the script and initialize runtime functions (`onInit()`). Verify in the terminal console that sensors, display, Wi-Fi, and the HTTP REST server start successfully.
 7. **Persist State (`save()`):** In the terminal console, type `save()` and press Enter. This writes the active environment and initialization hooks to non-volatile flash memory so the device runs automatically on boot without needing a computer connection.
 
+---
+
 ## How to Use
 Once your Smart Place Guard device is booted and connected to your Wi-Fi network, you can access live telemetry and control the relays via a web browser, standard command-line tools like **cURL** (built into Windows 10/11), or through the **Smart Place platform**.
 
@@ -65,7 +71,8 @@ curl http://<ESP32_IP_ADDRESS>/
   "Relay 3": 0,
   "Relay 4": 0,
   "Relay 5": 0,
-  "Display index": 5
+  "Display index": 5,
+  "alert": false
 }
 ```
 * **Pressure:** Atmospheric pressure in Pascals (Pa) from BMP085.
@@ -75,26 +82,36 @@ curl http://<ESP32_IP_ADDRESS>/
 * **Gas (MQ9):** Combustible gas sensor reading from MQ-9.
 * **Relay 1–5:** Current state of each relay (`0` = OFF, `1` = ON).
 * **Display index:** Active screen index on the OLED display.
+* **alert:** Boolean flag (`true` or `false`) indicating whether any sensor has breached safe operational thresholds and triggered the local alarm.
 
 ### Controlling Relays via REST (POST)
-To switch any of the 5 relays remotely, send an HTTP POST request with a JSON array of 5 binary values (0 or 1) corresponding to Relay 1 through Relay 5:
+To switch any of the 5 relays remotely, send an HTTP POST request with a JSON array of 5 binary values (`0` or `1`) corresponding to Relay 1 through Relay 5:
 ```bash
 curl -X POST http://<ESP32_IP_ADDRESS>/ -H "Content-Type: application/json" -d "[1,0,0,1,0]"
 ```
 
 ### Smart Place Platform & SMS Control
-You can connect this device directly to the Smart Place platform to forward telemetry data and automate relay triggers. Once integrated, you can monitor sensor thresholds remotely and toggle relays via SMS commands through the platform's gateway.
+You can connect this device directly to the Smart Place platform to forward telemetry data and automate relay triggers. Once integrated, you can monitor sensor thresholds remotely, receive instant alerts via the `alert` property, and toggle relays via SMS commands through the platform's gateway.
 
-## Acoustic Alarm & Critical Alert System
-The Smart Place Guard is equipped with an onboard buzzer connected to **GPIO 32** (`pins.buzzer`) to provide immediate local audio feedback when environmental parameters drift beyond safe operational thresholds.
+---
+
+## Acoustic Alarm & Network Reliability
+
+### 1. Acoustic Alarm & Critical Alert System
+The Smart Place Guard is equipped with an onboard active buzzer connected to **GPIO 32** (`pins.buzzer`) to provide immediate local audio feedback when environmental parameters drift beyond safe operational thresholds.
 
 * **Trigger Conditions:** The firmware continuously evaluates all active sensor inputs against predefined safety limits:
   * **Atmospheric Pressure:** Monitors for extreme pressure drops or spikes (`< 90,000 Pa` or `> 105,000 Pa`).
-  * **Temperature (Temp 1 & Temp 2):** Triggers if ambient temperature drops below `10.0 °C` or exceeds `45.0 °C`.
+  * **Temperature (Temp 1 & Temp 2):** Triggers if ambient temperature drops below `10.0 °C` or exceeds `50.0 °C`.
   * **Humidity (Raw & Compensated):** Alerts if relative humidity falls outside the `10% – 90%` safe operating range.
-  * **Carbon Dioxide ($CO_2$):** Activates when levels exceed `1200 ppm` (normal baseline is ~672 ppm).
-  * **Combustible Gas (MQ-9):** Triggers if gas readings exceed `50` units (normal baseline is ~5).
-* **Alarm Behavior:** When any sensor breaches its threshold, the system triggers a distinct pulsing audio pattern via `digitalPulse()` and logs the alert to the serial console, automatically returning to silence once environmental conditions normalize.
+  * **Carbon Dioxide ($CO_2$):** Activates when levels exceed `2000 ppm`.
+  * **Combustible Gas (MQ-9):** Triggers if gas readings exceed `50` units.
+* **Alarm Behavior:** When any sensor breaches its threshold, the system triggers a distinct pulsing audio pattern via `digitalPulse()`, sets the `"alert": true` flag in the JSON API, and logs the warning to the serial console, automatically returning to normal state once environmental parameters stabilize.
+
+### 2. Robust Wi-Fi Auto-Reconnection
+To guarantee 24/7 autonomous operation, the firmware includes a continuous Wi-Fi link monitoring routine. If the wireless connection drops, the system automatically catches the drop and attempts to reconnect to your configured Wi-Fi network every 10 seconds until stability is fully restored.
+
+---
 
 ## Demo
 
